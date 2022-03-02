@@ -3,6 +3,7 @@ import numpy as np
 
 x_start = [0., 1.]
 u_start = [2., 1.]
+# x_0 = 2/3
 x_0 = 1 / math.sqrt(3)
 
 
@@ -61,7 +62,7 @@ print('\n\nАналитическое решение модельной зада
 
 # Численное решение модельной задачи с постоянными коэффициентами
 
-N = 640
+N = 10
 h = 1 / N
 x_l = np.arange(0., 1. + h, h)
 
@@ -112,6 +113,7 @@ u_const = find_grid_const()
 # Печать сетки
 
 def print_grid_const():
+    acc = 3
     x_gr = np.arange(0., 1.1, 0.1)
     u1_res = [u_an(x) for x in x_gr]
     u2_res = []
@@ -121,25 +123,27 @@ def print_grid_const():
     diff = []
     for i in range(0, 11):
         diff.append(abs(u2_res[i] - u1_res[i]))
+    max_d = max(diff)
 
-    x_str = f'{x_gr[0]:.3e}'
+    x_str = f'{x_gr[0]:.{acc}e}'
     for x in x_gr[1:]:
-        x_str += f' | {x:.3e}'
-    u1_str = f'{u1_res[0]:.3e}'
+        x_str += f' | {x:.{acc}e}'
+    u1_str = f'{u1_res[0]:.{acc}e}'
     for u1 in u1_res[1:]:
-        u1_str += f' | {u1:.3e}'
-    u2_str = f'{u_const[0]:.3e}'
+        u1_str += f' | {u1:.{acc}e}'
+    u2_str = f'{u_const[0]:.{acc}e}'
     for u2 in u2_res[1:]:
-        u2_str += f' | {u2:.3e}'
-    d_str = f'{diff[0]:.3e}'
+        u2_str += f' | {u2:.{acc}e}'
+    d_str = f'{diff[0]:.{acc}e}'
     for d in diff[1:]:
-        d_str += f' | {d:.3e}'
+        d_str += f' | {d:.{acc}e}'
 
     print('Сетка: \n\n',
           f'X     | {x_str}\n',
           f'U_mod | {u1_str}\n',
           f'U     | {u2_str}\n',
-          f'diff  | {d_str}\n', )
+          f'diff  | {d_str}\n',
+          f'max_d | {max_d}')
 
 
 print_grid_const()
@@ -206,15 +210,17 @@ def print_grid_var():
     for i in range(0, N + 1, base):
         u_res.append(u_var[i])
 
-    x_str = f'{x_gr[0]:.3e}'
+    acc = 3
+    x_str = f'{x_gr[0]:.{acc}e}'
     for x in x_gr[1:]:
-        x_str += f' | {x:.3e}'
-    u_str = f'{u_res[0]:.3e}'
+        x_str += f' | {x:.{acc}e}'
+    u_str = f'{u_res[0]:.{acc}e}'
     for u in u_res[1:]:
-        u_str += f' | {u:.3e}'
+        u_str += f' | {u:.{acc}e}'
 
     print('\nЗадача с переменными коэффициентами: \n\n',
           f'X     | {x_str}\n',
-          f'U     | {u_str}\n',)
+          f'U     | {u_str}\n', )
+
 
 print_grid_var()
