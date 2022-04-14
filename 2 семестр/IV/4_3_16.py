@@ -6,12 +6,29 @@ u_start = [2., 1.]
 # x_0 = 2/3
 x_0 = 1 / math.sqrt(3)
 
+def k(x):
+    return math.exp(- x)
 
-def k_q_f(x):
+
+def q(x):
     if x < x_0:
-        return math.exp(- x), x ** 3, x ** 2 - 1.
+        return x ** 3
     if x > x_0:
-        return math.exp(- x), x, 1.
+        return x
+
+
+def f(x):
+    if x < x_0:
+        return x ** 2 - 1.
+    if x > x_0:
+        return 1.
+
+
+# def k_q_f(x):
+#     if x < x_0:
+#         return math.exp(- x), x ** 3, x ** 2 - 1.
+#     if x > x_0:
+#         return math.exp(- x), x, 1.
 
 
 k_a = math.exp(- x_0)
@@ -62,7 +79,7 @@ print('\n\nАналитическое решение модельной зада
 
 # Численное решение модельной задачи с постоянными коэффициентами
 
-N = 10
+N = 320
 h = 1 / N
 x_l = np.arange(0., 1. + h, h)
 
@@ -154,31 +171,45 @@ print_grid_const()
 def find_grid_var():
     l_a, l_b = find_l_a_l_b()
 
-    a_a, a_b = k_a, k_b
-    b_a, b_b = - 2 * k_a - q_a * h ** 2, - 2 * k_b - q_b * h ** 2
-    c_a, c_b = k_a, k_b
-    d_a, d_b = - f_a * h ** 2, - f_b * h ** 2
+    # a_a, a_b = k_a, k_b
+    # b_a, b_b = - 2 * k_a - q_a * h ** 2, - 2 * k_b - q_b * h ** 2
+    # c_a, c_b = k_a, k_b
+    # d_a, d_b = - f_a * h ** 2, - f_b * h ** 2
+
+    a_a, a_b = k(h * 1.5), k(h * (N - 1) + 0.5)
+    b_a, b_b = - k(h * 0.5) - k(h * 1.5) - q(h) * h ** 2,\
+               -k(h * (N - 1 - 0.5)) - k(h * (N - 1 + 0.5)) - q(h * N - 1) * h ** 2
+    c_a, c_b = k(h * 0.5), k(h * (N - 1 - 0.5))
+    d_a, d_b = - f(h) * h ** 2, - f(h * (N - 1)) * h ** 2
 
     alpha_a = [- a_a / b_a, ]
     beta_a = [(d_a - c_a * u_start[0]) / b_a, ]
     alpha_b = [- c_b / b_b, ]
     beta_b = [(d_b - c_b * u_start[1]) / b_b, ]
 
-    def a_b_c_d(x):
-        k, q, f = k_q_f(x)
-        a = k
-        b = - 2 * k - q * h ** 2
-        c = k
-        d = - f * h ** 2
-        return a, b, c, d
+    # def a_b_c_d(x):
+    #     k, q, f = k_q_f(x)
+    #     a = k
+    #     b = - 2 * k - q * h ** 2
+    #     c = k
+    #     d = - f * h ** 2
+    #     return a, b, c, d
 
     for i in range(1, l_a):
-        a, b, c, d = a_b_c_d(x_l[i])
+        a = k(h * (i + 1 + 0.5))
+        b = - k(h * (i + 1 - 0.5)) - k(h * (i + 1 + 0.5)) - q(h * (i + 1)) * h ** 2
+        c = k(h * (i + 1 - 0.5))
+        d = - f(h * (i + 1)) * h ** 2
+
         alpha_a.append(- a / (b + c * alpha_a[i - 1]))
         beta_a.append((d - c * beta_a[i - 1]) / (b + c * alpha_a[i - 1]))
 
     for i in reversed(range(l_b + 1, N)):
-        a, b, c, d = a_b_c_d(x_l[i])
+        a = k(h * (- i + N - 1 + 0.5))
+        b = - k(h * (- i + N - 1 - 0.5)) - k(h * (- i + N - 1 + 0.5)) - q(h * (- i + N - 1)) * h ** 2
+        c = k(h * (- i + N - 1) - 0.5)
+        d = - f(h * (- i + N - 1)) * h ** 2
+
         alpha_b.insert(0, - c / (b + a * alpha_b[0]))
         beta_b.insert(0, (d - c * beta_b[0]) / (b + a * alpha_b[1]))
 
